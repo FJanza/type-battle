@@ -47,17 +47,19 @@ export default function Home() {
   }
 
   return (
-    <main className="flex flex-col items-center text-gray-100 text-center">
+    <main className="flex flex-col items-center text-gray-100 text-center w-full">
       {!isStarting ? (
-        <div className="flex flex-col gap-2 items-center">
-          <div className="flex items-center justify-center">
-            <TypewriterText text="Type-Battle" className="font-bold" />
+        <div className="flex flex-col gap-2 items-center w-full">
+          <div className="flex items-center justify-center w-full">
+            <div className="flex flex-1"></div>
+            <div className="flex items-center justify-center flex-1">
+              <TypewriterText text="Type-Battle" className="font-bold" />
+            </div>
+            <div className="flex items-center justify-end flex-1">
+              <LanguageButton />
+            </div>
           </div>
-          <p className="text-sm lg:text-lg text-gray-300 mb-1 lg:mb-4 opacity-40">
-            {t("messages.proveYourself")}
-          </p>
 
-          <LanguageButton />
           <DifficultySelector
             difficulty={difficulty}
             setDifficulty={setDifficulty}
