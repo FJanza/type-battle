@@ -1,34 +1,48 @@
-export const DIFFICULTY_SETTINGS = {
-  easy: {
-    timeGame: 60,
-    wordsQuantity: 10,
-    label: "Easy",
-    description: "More time, less words",
-    wordMinLength: 2,
-    wordMaxLength: 5,
-  },
-  normal: {
-    timeGame: 30,
-    wordsQuantity: 15,
-    label: "Normal",
-    description: "Default experience",
+export const DIFFICULTY = {
+  CUSTOM: "custom",
+  NORMAL: "normal",
+  HARD: "hard",
+  MASTER: "master",
+} as const;
+
+export type DifficultyLevelKey = (typeof DIFFICULTY)[keyof typeof DIFFICULTY];
+
+export const DIFFICULTY_SETTINGS: Record<
+  DifficultyLevelKey,
+  {
+    timeGame: number;
+    wordsQuantity: number;
+    label: string;
+    wordMinLength: number;
+    wordMaxLength: number;
+  }
+> = {
+  [DIFFICULTY.CUSTOM]: {
+    timeGame: 45,
+    wordsQuantity: 20,
+    label: "custom",
     wordMinLength: 3,
     wordMaxLength: 10,
   },
-  hard: {
+  [DIFFICULTY.NORMAL]: {
+    timeGame: 30,
+    wordsQuantity: 15,
+    label: "normal",
+    wordMinLength: 3,
+    wordMaxLength: 10,
+  },
+  [DIFFICULTY.HARD]: {
     timeGame: 25,
     wordsQuantity: 25,
-    label: "Hard",
-    description: "Less time, more words",
+    label: "hard",
     wordMinLength: 5,
     wordMaxLength: 12,
   },
-  master: {
-    timeGame: 20,
+  [DIFFICULTY.MASTER]: {
+    timeGame: 25,
     wordsQuantity: 30,
-    label: "Master",
-    description: "Prove yourself to the typing gods",
-    wordMinLength: 7,
+    label: "master",
+    wordMinLength: 5,
     wordMaxLength: 14,
   },
 };

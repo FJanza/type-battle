@@ -1,43 +1,96 @@
-import React from "react";
+import React, {useState} from "react";
+import {useTranslation} from "react-i18next";
 
-import {DifficultyLevel} from "src/models/difficulty";
+import {Difficulty, DifficultyLevel} from "src/models/difficulty";
 import {DIFFICULTY_SETTINGS} from "src/utils/difficulty";
 
+import CustomDifficultyEditor from "./CustomDifficultyEditor";
 import {DifficultySelectorProps} from "./types";
-
-/**
- *
- * @param difficulty current difficulty level.
- * @param setDifficulty function to set the difficulty level.
- * @returns
- */
 
 export default function DifficultySelector({
   difficulty,
   setDifficulty,
 }: DifficultySelectorProps) {
+  const [customSettings, setCustomSettings] = useState<Difficulty>({
+    ...DIFFICULTY_SETTINGS.custom,
+  });
+
+  const {t} = useTranslation();
+
+  const [showCustomEditor, setShowCustomEditor] = useState(false);
+  const [customSettingsSelected, setCustomSettingsSelected] = useState(false);
+
+  const handleDifficultyClick = (level: DifficultyLevel) => {
+    setDifficulty(level);
+    if (level === "custom") {
+      setShowCustomEditor(true);
+    } else {
+      setShowCustomEditor(false);
+    }
+  };
+
+  const handleSaveCustom = () => {
+    DIFFICULTY_SETTINGS.custom = customSettings;
+    setCustomSettingsSelected(true);
+    setShowCustomEditor(false);
+  };
+
+  const handleCloseCustomEditor = () => {
+    setShowCustomEditor(false);
+  };
+
   return (
     <div className="w-full max-w-md p-6 transition-all duration-300">
-      <h2 className="text-xl font-semibold mb-4 text-gray-200">
-        Choose Difficulty
+      <h2 className="text-base lg:text-xl font-semibold mb-4 text-gray-200 opacity-40">
+        {t("difficulty.title")}
       </h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {Object.entries(DIFFICULTY_SETTINGS).map(([key, value]) => (
           <div
             key={key}
-            className={`p-3 border-2 rounded-md cursor-pointer transition-colors bg-gray-700 hover:bg-gray-600 text-gray-200 flex flex-col justify-between  ${
-              difficulty === key ? "border-fuchsia-400" : "border-gray-600"
+            className={`h-full ${
+              difficulty === key ? "gradient-border-container" : ""
             }`}
-            onClick={() => setDifficulty(key as DifficultyLevel)}
           >
-            <h3 className="font-bold text-white">{value.label}</h3>
-            <p className="text-sm text-gray-300">{value.description}</p>
-            <div className="text-xs mt-2 text-gray-400">
-              {value.timeGame}s / {value.wordsQuantity} words
+            <div
+              className={`${
+                difficulty === key
+                  ? "gradient-border-content"
+                  : "bg-gray-700 border-2 border-gray-600"
+              } h-full p-3 rounded-md cursor-pointer transition-colors hover:bg-gray-600 
+            text-gray-200 flex flex-col justify-between`}
+              onClick={() => handleDifficultyClick(key as DifficultyLevel)}
+            >
+              <div className="justify-center flex flex-col items-center">
+                <h3 className="font-bold text-white text-sm lg:text-base">
+                  {t("difficulty." + value.label + ".name")}
+                </h3>
+                <p className="text-xs lg:text-sm text-gray-300">
+                  {t("difficulty." + value.label + ".description")}
+                </p>
+              </div>
+
+              <div className="text-xs mt-2 text-gray-400">
+                {value.label !== "Custom" || customSettingsSelected
+                  ? `${value.timeGame}s / ${value.wordsQuantity} ${t(
+                      "common.words"
+                    )}`
+                  : t("difficulty.chooseSettings")}
+              </div>
             </div>
           </div>
         ))}
       </div>
+
+      {showCustomEditor && (
+        <CustomDifficultyEditor
+          settings={customSettings}
+          onSettingsChange={setCustomSettings}
+          onSave={handleSaveCustom}
+          isOpen={showCustomEditor}
+          onClose={handleCloseCustomEditor}
+        />
+      )}
     </div>
   );
 }

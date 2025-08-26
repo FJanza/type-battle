@@ -11,12 +11,11 @@
   --yellow: #daaf38;
   --purple: #b438da;
 }
-input {
-  /* z-index: -999; */
+
+.input-ingame {
   position: absolute;
   top: 0;
   left: 0;
-  /* pointer-events: none !important; */
   background-color: #313131;
   opacity: 0;
 }
@@ -24,9 +23,8 @@ input {
 body {
   display: grid;
   padding: 32px;
-  justify-content: center;
   margin-top: 32px;
-  padding: 16px;
+  width: 100%;
 }
 section {
   padding: 16px;
@@ -40,12 +38,6 @@ p {
   flex-wrap: wrap;
   gap: 3px 8px;
 }
-
-/* tb-word {
-  &.active {
-
-  }
-} */
 
 tb-letter {
   color: grey;
@@ -74,7 +66,6 @@ tb-letter {
 
 h2 {
   font-weight: 400;
-  opacity: 0.4;
   margin: 0;
   font-size: 16px;
 }
@@ -87,18 +78,10 @@ h3 {
 }
 
 button {
-  background: transparent;
-  border: 0;
-  margin-top: 32px;
-  opacity: 0.4;
-  padding: 10px;
-  display: inline-block;
   transition: opacity 0.3s ease-in-out;
   cursor: pointer;
-  border-radius: 16px;
   &:hover {
-    background: #444;
-    opacity: 1;
+    opacity: 0.75;
   }
 }
 
@@ -117,4 +100,38 @@ tb-word {
   75% {
     opacity: 0;
   }
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-border-container {
+  padding: 2px;
+  border-radius: 0.375rem;
+  background: linear-gradient(-45deg, #f2444f, #40a8be, #f2444f, #40a8be);
+  background-size: 200% 200%;
+  animation: gradient-animation 3s ease infinite;
+}
+
+.bg-palette-gradient-animated {
+  background: linear-gradient(-45deg, #f2444f, #40a8be, #f2444f, #40a8be);
+  background-size: 200% 200%;
+  animation: gradient-animation 3s ease infinite;
+}
+
+.gradient-border-content {
+  background-color: #374151;
+  border-color: #4b5563;
+  border-radius: 0.25rem;
+  height: 100%;
+  width: 100%;
 }

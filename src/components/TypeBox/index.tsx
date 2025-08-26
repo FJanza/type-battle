@@ -2,20 +2,24 @@
 "use client";
 import {useRouter} from "next/navigation";
 import React, {useEffect, useRef, useState} from "react";
+import {useTranslation} from "react-i18next";
 
-import {WORDS_BY_LENGTH} from "src/utils/constants";
-import {DIFFICULTY_SETTINGS} from "src/utils/difficulty";
+import {LANGUAGE} from "src/i18n/settings";
 import {GameOverData} from "src/models/gameOverData";
+import enDataset from "src/datasets/en.json";
+import esDataset from "src/datasets/es.json";
+import {DIFFICULTY_SETTINGS} from "src/utils/difficulty";
+import {calculateScore} from "src/utils/score";
 
-import {TypeBoxProps} from "./types";
+import {DatasetLanguage, TypeBoxProps, WordsDataset} from "./types";
 
 const TypeBox = ({
   difficulty = "normal",
   initialTime,
   wordsQuantity,
+  datasetLanguage = LANGUAGE.EN,
 }: TypeBoxProps) => {
-  const settings =
-    DIFFICULTY_SETTINGS[difficulty as keyof typeof DIFFICULTY_SETTINGS];
+  const settings = DIFFICULTY_SETTINGS[difficulty];
   const gameTime = initialTime || settings.timeGame;
   const wordCount = wordsQuantity || settings.wordsQuantity;
 
@@ -27,9 +31,20 @@ const TypeBox = ({
   const [gameOverData, setGameOverData] = useState<GameOverData>();
   const [playing, setPlaying] = useState(false);
 
+  const {t} = useTranslation();
+
   const router = useRouter();
 
-  let words: any = [];
+  const getDataset = (): WordsDataset => {
+    const dataSets: Record<DatasetLanguage, WordsDataset> = {
+      es: esDataset,
+      en: enDataset,
+    };
+
+    return dataSets[datasetLanguage] || enDataset;
+  };
+
+  let words: string[] = [];
 
   function initGame() {
     setGameOverState(false);
@@ -38,20 +53,20 @@ const TypeBox = ({
 
     setPlaying(false);
 
-    const eligibleWords = [];
+    const dataset = getDataset();
+    const eligibleWords: string[] = [];
+
     for (
       let length = settings.wordMinLength;
       length <= settings.wordMaxLength;
       length++
     ) {
-      if (WORDS_BY_LENGTH[length]) {
-        eligibleWords.push(...WORDS_BY_LENGTH[length]);
+      if (dataset[length.toString()]) {
+        eligibleWords.push(...dataset[length.toString()]);
       }
     }
 
-    words = eligibleWords
-      .toSorted(() => Math.random() - 0.5)
-      .slice(0, wordCount);
+    words = eligibleWords.sort(() => Math.random() - 0.5).slice(0, wordCount);
 
     $paragraph.current!.innerHTML = words
       .map((word: string, index: number) => {
@@ -220,24 +235,18 @@ const TypeBox = ({
     const totalAvailableLetters =
       $paragraph.current!.querySelectorAll("tb-letter").length;
 
-    const completionRate =
-      totalAvailableLetters > 0
-        ? (correctLetter / totalAvailableLetters) * 100
-        : 0;
+    let timeLeft = currentTime === gameTime ? 0 : currentTime;
 
-    const totalLetters = correctLetter + incorrectLetter;
-
-    // TODO Creo yo que se deberia contar tambien los errores que luego se corrigen
-    const accuracy =
-      totalLetters > 0 ? (correctLetter / totalLetters) * 100 : 0;
-
-    const wpm = (correctWords * 60) / gameTime;
-
-    setGameOverData({
-      wpm,
-      accuracy: accuracy.toFixed(2),
-      completionRate: completionRate.toFixed(2),
+    const gameOverData = calculateScore({
+      correctWords,
+      correctLetter,
+      incorrectLetter,
+      totalAvailableLetters,
+      gameTime,
+      spareTime: timeLeft,
     });
+
+    setGameOverData(gameOverData);
     setGameOverState(true);
   }
 
@@ -248,36 +257,64 @@ const TypeBox = ({
 
   return (
     <div className="flex flex-col items-center justify-between">
-      <div className="difficulty-badge mb-4 px-3 py-1 bg-fuchsia-100 text-fuchsia-800 rounded-full">
-        {settings.label}
-      </div>
+      <h5 className="difficulty-badge mb-4 px-3 py-1 bg-fuchsia-100 text-fuchsia-800 rounded-full">
+        {t("difficulty." + settings.label + ".name").toLocaleUpperCase()}
+      </h5>
       <section className={gameOverState ? "hidden" : "flex"}>
-        <input autoFocus ref={$input} onKeyDown={onKeyDown} onKeyUp={onKeyUp} />
+        <input
+          autoFocus
+          ref={$input}
+          onKeyDown={onKeyDown}
+          onKeyUp={onKeyUp}
+          className="input-ingame"
+        />
         <p ref={$paragraph}></p>
         <time>{currentTime}</time>
       </section>
 
       <section className={!gameOverState ? "hidden" : "flex"}>
-        <h2>WPM</h2>
-        <h3>{gameOverData?.wpm}</h3>
-        <h2>Accuracy</h2>
-        <h3>{gameOverData?.accuracy}%</h3>
-        <h2>Completion Rate</h2>
-        <h3>{gameOverData?.completionRate}%</h3>
-        <button
-          onClick={() => {
-            initGame();
-          }}
-        >
-          Retry
-        </button>
-        <button
-          onClick={() => {
-            router.push("/");
-          }}
-        >
-          Go Home
-        </button>
+        <div className="flex flex-col items-center mb-2">
+          <h1 className="text-xl mn-2">{t("common.score")}</h1>
+          <h3 className="text-3xl">{gameOverData?.totalScore.toFixed(0)}</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <h2 className="opacity-40">{t("common.accuracy")}</h2>
+            <h3>{gameOverData?.accuracy}%</h3>
+          </div>
+          <div>
+            <h2 className="opacity-40">{t("common.wpm")}</h2>
+            <h3>{gameOverData?.wpm.toFixed(2)}</h3>
+          </div>
+          <div>
+            <h2 className="opacity-40">{t("common.completionRate")}</h2>
+            <h3>{gameOverData?.completionRate}%</h3>
+          </div>
+          <div>
+            <h2 className="opacity-40">{t("common.spareTime")}</h2>
+            <h3>
+              {gameOverData?.spareTime} {t("common.seconds")}
+            </h3>
+          </div>
+        </div>
+        <div className="flex flex-row gap-4 justify-center">
+          <button
+            onClick={() => {
+              initGame();
+            }}
+            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition duration-200"
+          >
+            {t("button.retry")}
+          </button>
+          <button
+            onClick={() => {
+              router.push("/");
+            }}
+            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition duration-200"
+          >
+            {t("button.goHome")}
+          </button>
+        </div>
       </section>
     </div>
   );
