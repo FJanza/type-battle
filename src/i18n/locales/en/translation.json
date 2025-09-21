@@ -42,6 +42,11 @@
     "apply": "Apply",
     "cancel": "Cancel",
     "retry": "Retry",
-    "goHome": "Go home"
+    "goHome": "Go home",
+    "logOut": "Log out"
+  },
+  "ModalNotLogged": {
+    "loginWith": "Login with",
+    "insertYourUsername": "Insert your username"
   }
 }
