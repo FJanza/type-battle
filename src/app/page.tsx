@@ -10,40 +10,22 @@ import LoadingSpinner from "src/components/LoadingSpinner";
 import DifficultySelector from "src/components/DifficultySelector";
 import DatasetSelector from "src/components/DatasetSelector/index";
 import {useGameSettings} from "src/context/GameSettings";
+import {Button} from "src/components/Button";
+import {signOut} from "src/firebase/auth";
 
 export default function Home() {
   const {difficulty, setDifficulty} = useGameSettings();
   const [isStarting, setIsStarting] = useState(false);
-  const [pageLoaded, setPageLoaded] = useState(false);
 
   const router = useRouter();
   const {t} = useTranslation();
 
   function createGame() {
     setIsStarting(true);
+    //TODO guardar el id de juego (?
     const gameID = Math.random().toString(36).substring(2, 8);
 
-    setTimeout(() => {
-      router.push(`/game/${gameID}`);
-    }, 500);
-  }
-
-  useEffect(() => {
-    const fontPromise = document.fonts.ready;
-    Promise.all([
-      fontPromise,
-      new Promise((resolve) => setTimeout(resolve, 500)),
-    ]).then(() => {
-      setPageLoaded(true);
-    });
-  }, []);
-
-  if (!pageLoaded) {
-    return (
-      <div className="h-screen w-full flex items-center justify-center">
-        <LoadingSpinner text={t("common.loading")} />
-      </div>
-    );
+    router.push(`/game/${gameID}`);
   }
 
   return (
@@ -57,6 +39,13 @@ export default function Home() {
             </div>
             <div className="flex items-center justify-end flex-1">
               <LanguageButton />
+              <Button
+                onClick={() => {
+                  signOut();
+                }}
+              >
+                {t("button.logOut")}
+              </Button>
             </div>
           </div>
 

@@ -46,6 +46,11 @@
     "apply": "Aplicar",
     "cancel": "Cancelar",
     "retry": "Reintentar",
-    "goHome": "Volver al inicio"
+    "goHome": "Volver al inicio",
+    "logOut": "Cerrar sesión"
+  },
+  "ModalNotLogged": {
+    "loginWith": "Iniciar con",
+    "insertYourUsername": "Inserte su nombre de usuario"
   }
 }

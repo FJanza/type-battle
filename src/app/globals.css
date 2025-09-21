@@ -64,19 +64,6 @@ tb-letter {
   }
 }
 
-h2 {
-  font-weight: 400;
-  margin: 0;
-  font-size: 16px;
-}
-
-h3 {
-  font-weight: 400;
-  margin: 0;
-  font-size: 24px;
-  color: var(--purple);
-}
-
 button {
   transition: opacity 0.3s ease-in-out;
   cursor: pointer;
